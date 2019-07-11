@@ -12,6 +12,11 @@ class Login extends Component {
 
   }
 
+  componentDidMount() {
+    if (cookie.load("username"))
+      document.getElementById("username").value = cookie.load("username");
+  }
+
   login() {    
     if (document.getElementById("username").value === "")
       return;

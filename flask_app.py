@@ -1,16 +1,16 @@
 from flask import Flask, render_template
 from flask import request
-from flask_cors import CORS
+# from flask_cors import CORS
 import json, collections
 from datetime import datetime
 from pytz import timezone
 from pprint import pprint
 
 app = Flask(__name__)
-CORS(app)
+# CORS(app)
 
-progress_file_path = "./progress.json"
-# progress_file_path = "/home/trackmyprogress/mysite/progress.json"
+# progress_file_path = "./progress.json"
+progress_file_path = "/home/trackmyprogress/mysite/progress.json"
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -56,7 +56,12 @@ def update_data():
         data[today]
     except KeyError:
         data[today] = {}
-    data[today][username] = {"points": float(points), "info": info}
+    try:
+        data[today][username]["points"] += float(points)
+        data[today][username]["info"] += "; " + info
+    except KeyError:
+        # if user data is not available for that date
+        data[today][username] = {"points": float(points), "info": info}
     pprint(data)
     with open(progress_file_path,"w") as f:
         json.dump(data, f)
@@ -69,4 +74,4 @@ def get_current_date():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)

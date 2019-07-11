@@ -17,13 +17,14 @@ class ProgressPage extends Component {
     this.get_data = this.get_data.bind(this);
     this.update_data = this.update_data.bind(this);
     this.graph_data = this.graph_data.bind(this);
+    this.graph2_data = this.graph2_data.bind(this);
 
     this.get_data();
   }
 
   get_data() {
-    // axios.post('http://trackmyprogress.pythonanywhere.com/loadProgress', {username: cookie.load("username")})
-    axios.post('http://192.168.0.20:5000/loadProgress', {username: cookie.load("username")})    
+    axios.post('http://trackmyprogress.pythonanywhere.com/loadProgress', {username: cookie.load("username")})
+    // axios.post('http://192.168.0.20:5000/loadProgress', {username: cookie.load("username")})    
     .then(response=>{
       if (response.data.message==="success"){
         console.log(response.data.progress_data);
@@ -39,12 +40,14 @@ class ProgressPage extends Component {
   }
 
   update_data() {
-    // axios.post('http://trackmyprogress.pythonanywhere.com/updateProgress', {username: cookie.load("username"), points: document.getElementById("points").value, info: document.getElementById("info").value})
-    axios.post('http://192.168.0.20:5000/updateProgress', {username: cookie.load("username"), points: document.getElementById("points").value, info: document.getElementById("info").value})    
+    axios.post('http://trackmyprogress.pythonanywhere.com/updateProgress', {username: cookie.load("username"), points: document.getElementById("points").value, info: document.getElementById("info").value})
+    // axios.post('http://192.168.0.20:5000/updateProgress', {username: cookie.load("username"), points: document.getElementById("points").value, info: document.getElementById("info").value})    
     .then(response=>{
       if (response.data.message==="update successful"){
         console.log(response.data.message);
         this.get_data();
+        document.getElementById("points").value = "";
+        document.getElementById("info").value = "";
       }
     })
     .catch(error=>{
@@ -74,6 +77,24 @@ class ProgressPage extends Component {
     ]
   }
 
+  graph2_data() {
+    let points = [], info = [], dates = []; 
+    Object.keys(this.state.progress).map((date_i,i)=>{
+      points.push(this.state.progress[date_i]["points"]);
+      info.push(this.state.progress[date_i]["points"] + ": " + this.state.progress[date_i]["info"]);
+      dates.push(date_i);
+    });
+    return [
+      {
+        x: dates,
+        y: points,
+        text: info,
+        type: 'bar',
+        mode: 'lines+points',
+      },
+    ]
+  }
+
   render() {
     return (
       <div className="App">
@@ -95,6 +116,8 @@ class ProgressPage extends Component {
           </u>
           <br/><br/><br/>
           <Plot data={this.graph_data()} layout={{autosize: true}} useResizeHandler={true} style={{width: "80%"}} />
+          <br/>
+          <Plot data={this.graph2_data()} layout={{autosize: true}} useResizeHandler={true} style={{width: "80%"}} />
           <br/><br/><br/>
           History: <br/>
           <table>
